@@ -13,9 +13,22 @@ namespace CopyMaterial.Editor
         private static int index;
         private bool IsGameobject;
 
+        private static Material TempMaterial;
+        private GUIContent mGUIContent;
+        private bool IsGood;
+
         public override void OnEnable() //材质球面板第一次绘制才会调用
         {
             base.OnEnable();
+            TempMaterial = Resources.Load<Material>("TempCopyMatetalValue");
+            IsGood = TempMaterial != null;
+            if (!IsGood)
+            {
+                Debug.Log("缺失原始材质，请在脚本所在文件夹中的Resources文件夹创建一个名字叫TempCopyMatetalValue的材质球");
+                mGUIContent = new GUIContent(EditorGUIUtility.IconContent("CollabConflict"));
+                mGUIContent.tooltip = "缺失原始材质，请在脚本所在文件夹中的Resources文件夹创建一个名字叫TempCopyMatetalValue的材质球";
+            }
+
             IsGameobject = Selection.activeTransform;
             if (!IsGameobject) return;
             //判断一下是不是选中了project里的材质球
@@ -29,6 +42,29 @@ namespace CopyMaterial.Editor
 
         public override void OnInspectorGUI()
         {
+            GUILayout.BeginHorizontal();
+            if (!IsGood)
+            {
+                GUILayout.Label(mGUIContent, GUILayout.Width(20));
+            }
+
+            GUI.enabled = IsGood;
+            if (GUILayout.Button("CopyValue"))
+            {
+                var tempMateral = target as Material;
+                TempMaterial.shader = tempMateral.shader;
+                TempMaterial.CopyPropertiesFromMaterial(tempMateral);
+            }
+
+            if (GUILayout.Button("PasteValue"))
+            {
+                var tempMateral = target as Material;
+                tempMateral.shader = TempMaterial.shader;
+                tempMateral.CopyPropertiesFromMaterial(TempMaterial);
+            }
+
+            GUILayout.EndHorizontal();
+            GUI.enabled = true;
             if (IsGameobject)
             {
                 try
@@ -66,6 +102,7 @@ namespace CopyMaterial.Editor
 
                 MeshRenderer.sharedMaterials = Materials; //最后将新的数组赋值回renderer的material数组
             }
+
             base.OnInspectorGUI();
         }
     }
