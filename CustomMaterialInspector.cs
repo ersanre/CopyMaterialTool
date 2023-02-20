@@ -52,9 +52,10 @@ namespace CopyMaterial.Editor
             }
             else
             {
+                LastPath = EditorPrefs.GetString("CopyMaterialKey1");
                 if (LastPath!=null&&LastPath!="")
                 {
-                    FolderNames.Insert(0, "*Last Path");
+                    FolderNames.Insert(0, "*Last Path"+"- "+Path.GetFileName(Path.GetDirectoryName(LastPath)) );
                     FolderPaths.Insert(0, LastPath);
                 }
             }
@@ -116,11 +117,14 @@ namespace CopyMaterial.Editor
                             Materials[i] = (Material)EditorGUILayout.ObjectField(MeshRenderer.sharedMaterials[i],
                                 typeof(Material), true, GUILayout.MaxWidth(100)); //材质选取框 可被赋值
                             index = EditorGUILayout.Popup(index, FolderNames.ToArray(), GUILayout.MaxWidth(150)); //下拉选框
+                            var tempColor =GUI.color;
+                            GUI.color =Color.green;
                             if (material.hideFlags != HideFlags.NotEditable)
                             {
                                 if (GUILayout.Button("Copy and Use")) //复制材质并引用
                                 {
-                                    LastPath =FolderPaths[index];//最后一次使用路径
+                                    EditorPrefs.SetString("CopyMaterialKey1",FolderPaths[index]);
+                                   // LastPath =FolderPaths[index];//最后一次使用路径
                                     Materials[i] = Copy.CopyAsset(MeshRenderer.sharedMaterials[i],
                                        FolderPaths[index]) as Material;
                                 }
@@ -129,10 +133,12 @@ namespace CopyMaterial.Editor
                             {
                                 if (GUILayout.Button("Copy Temp Material")) //不可编辑的默认材质球 复制临时 材质并引用
                                 {
+                                   EditorPrefs.SetString("CopyMaterialKey1",FolderPaths[index]);
                                     Materials[i] = Copy.CopyAsset(TempMaterial,
                                        FolderPaths[index]) as Material;
                                 }
                             }
+                            GUI.color =tempColor;
                         }
                     }
 
