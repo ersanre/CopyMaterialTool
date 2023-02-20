@@ -22,8 +22,8 @@ namespace CopyMaterial.Editor
             stringName.Clear(); //先清一下
             stringPath.Clear();
             PaseYAML(s, ref stringName, ref stringPath); //解析文件 把名字 和路径放入表里
-            // stringName.Insert(0, "This Material Folder"); //在最前面占位  
-            // stringPath.Insert(0, "Assets");
+            stringName.Insert(0, "Asset"); //在最前面占位
+            stringPath.Insert(0, "Assets");
         }
 
         static void PaseYAML(string[] text, ref List<string> stringName, ref List<string> stringPath)

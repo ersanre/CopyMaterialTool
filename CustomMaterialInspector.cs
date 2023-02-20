@@ -18,8 +18,6 @@ namespace CopyMaterial.Editor
         private static Material TempMaterial;
         private GUIContent mGUIContent;
         private bool IsGood;
-        private List<string> FolderPaths = new List<string>();
-        private List<string> FolderNames = new List<string>();
         private static string LastPath;
 
         public override void OnEnable() //材质球面板第一次绘制才会调用
@@ -32,31 +30,31 @@ namespace CopyMaterial.Editor
             IsGood = TempMaterial != null;
             if (!IsGood)
             {
-                // Debug.Log("缺失原始材质，请在脚本所在文件夹中的Resources文件夹创建一个名字叫TempCopyMatetalValue的材质球");
                 mGUIContent = new GUIContent(EditorGUIUtility.IconContent("CollabConflict"));
-                mGUIContent.tooltip = "The original material is missing, please create a material ball named TempCopyMatetalValue in the Resources folder in the folder where the script is located";
+                mGUIContent.tooltip = Language.LanguageString[6];
             }
 
             IsGameobject = Selection.activeTransform;
             if (!IsGameobject) return;
             //判断一下是不是选中了project里的材质球
             material = target as Material;
-           // Debug.Log(LastPath);
-            FolderNames.AddRange(PaseFavoritePathExtension.stringName);
-            FolderPaths.AddRange(PaseFavoritePathExtension.stringPath);
+
             if (material.hideFlags != HideFlags.NotEditable)
             {
-                FolderNames.Insert(0, "*This Material Folder");
 
-                FolderPaths.Insert(0, AssetDatabase.GetAssetPath(material));
+                PaseFavoritePathExtension.stringName[0] = Language.LanguageString[2];
+
+                PaseFavoritePathExtension.stringPath[0] = AssetDatabase.GetAssetPath(material);
             }
             else
             {
                 LastPath = EditorPrefs.GetString("CopyMaterialKey1");
-                if (LastPath!=null&&LastPath!="")
+                if (LastPath != null && LastPath != "")
                 {
-                    FolderNames.Insert(0, "*Last Path"+"- "+Path.GetFileName(Path.GetDirectoryName(LastPath)) );
-                    FolderPaths.Insert(0, LastPath);
+
+                    PaseFavoritePathExtension.stringName[0] = Language.LanguageString[4] + "- " + Path.GetFileName(Path.GetDirectoryName(LastPath));
+
+                    PaseFavoritePathExtension.stringPath[0] = LastPath;
                 }
             }
 
@@ -78,14 +76,14 @@ namespace CopyMaterial.Editor
             }
 
             GUI.enabled = IsGood;
-            if (GUILayout.Button("CopyValue"))
+            if (GUILayout.Button(Language.LanguageString[0]))
             {
                 var tempMateral = target as Material;
                 TempMaterial.shader = tempMateral.shader;
                 TempMaterial.CopyPropertiesFromMaterial(tempMateral);
             }
 
-            if (GUILayout.Button("PasteValue"))
+            if (GUILayout.Button(Language.LanguageString[1]))
             {
                 var tempMateral = target as Material;
                 tempMateral.shader = TempMaterial.shader;
@@ -116,29 +114,29 @@ namespace CopyMaterial.Editor
                             Undo.RecordObject(MeshRenderer, "CopyAndUse"); //设置可撤销
                             Materials[i] = (Material)EditorGUILayout.ObjectField(MeshRenderer.sharedMaterials[i],
                                 typeof(Material), true, GUILayout.MaxWidth(100)); //材质选取框 可被赋值
-                            index = EditorGUILayout.Popup(index, FolderNames.ToArray(), GUILayout.MaxWidth(150)); //下拉选框
-                            var tempColor =GUI.color;
-                            GUI.color =Color.green;
+                            index = EditorGUILayout.Popup(index, PaseFavoritePathExtension.stringName.ToArray(), GUILayout.MaxWidth(150)); //下拉选框
+                            var tempColor = GUI.color;
+                            GUI.color = Color.green;
                             if (material.hideFlags != HideFlags.NotEditable)
                             {
-                                if (GUILayout.Button("Copy and Use")) //复制材质并引用
+                                if (GUILayout.Button(Language.LanguageString[3])) //复制材质并引用
                                 {
-                                    EditorPrefs.SetString("CopyMaterialKey1",FolderPaths[index]);
-                                   // LastPath =FolderPaths[index];//最后一次使用路径
+                                    EditorPrefs.SetString("CopyMaterialKey1", PaseFavoritePathExtension.stringPath[index]);
+                                    // LastPath =FolderPaths[index];//最后一次使用路径
                                     Materials[i] = Copy.CopyAsset(MeshRenderer.sharedMaterials[i],
-                                       FolderPaths[index]) as Material;
+                                       PaseFavoritePathExtension.stringPath[index]) as Material;
                                 }
                             }
                             else
                             {
-                                if (GUILayout.Button("Copy Temp Material")) //不可编辑的默认材质球 复制临时 材质并引用
+                                if (GUILayout.Button(Language.LanguageString[5])) //不可编辑的默认材质球 复制临时 材质并引用
                                 {
-                                   EditorPrefs.SetString("CopyMaterialKey1",FolderPaths[index]);
+                                    EditorPrefs.SetString("CopyMaterialKey1", PaseFavoritePathExtension.stringPath[index]);
                                     Materials[i] = Copy.CopyAsset(TempMaterial,
-                                       FolderPaths[index]) as Material;
+                                      PaseFavoritePathExtension.stringPath[index]) as Material;
                                 }
                             }
-                            GUI.color =tempColor;
+                            GUI.color = tempColor;
                         }
                     }
 
