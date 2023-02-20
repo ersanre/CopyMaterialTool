@@ -10,9 +10,9 @@ namespace CopyMaterial.Editor
         /// <summary>
         /// 将object复制保存到指定路径
         /// </summary>
-        /// <param name="materials"></param>objecxt
-        /// <param name="path"></param>全路径，
-        /// <returns></returns>New objecxt
+        /// <param name="materials">objecxt</param>
+        /// <param name="path">全路径，</param>
+        /// <returns>New objecxt</returns>
         public static Object CopyAsset(Object obj,string path) 
         {
             if (!Path.HasExtension(path))
